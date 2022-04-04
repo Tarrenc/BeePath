@@ -10,11 +10,11 @@ import time #import time library
 class GeneticAlgorithm:
     
     def __init__(self, BeeStart):
-        self.Generations=1500 #Number of times that the algorithm will loop
-        self.NofTowns=10 #The number of towns that should be visited must be greater than 3
-        self.CartesianMax=1000 #The maximum cartesian coordinates to be used 
-        self.PopulationSize=50 #Population size 
-        self.ElitismRate=0.02 #Top percentage of the population deemed elite
+        self.Generations=2000 #Number of times that the algorithm will loop
+        self.NofFlowers=10 #The number of towns that should be visited must be greater than 3
+        self.CartesianMax=700 #The maximum cartesian coordinates to be used 
+        self.PopulationSize=20 #Population size 
+        self.ElitismRate=0.05 #Top percentage of the population deemed elite
         self.crossoverRate=0.5
         self.MutationRate=0.05 #The percentage chance of an indivdual mutating
         self.Show_Generations= True #Switch to show current generation in Console
@@ -42,7 +42,7 @@ class GeneticAlgorithm:
         def Length(self,Population): #Calculate distance between towns
             PathLengths=[] #empty array to store lengths of the paths
             for i in range(self.PopulationSize): #looping through the population
-                    for j in range(self.NofTowns): #looping the same amount of times as the number of towns
+                    for j in range(self.NofFlowers): #looping the same amount of times as the number of towns
                         #print(np.shape(Population)) #used for debugging
                         Length=np.sqrt((Population[i][0][j].x - Population[i][0][j-1].x)**2+(Population[i][0][j].y-Population[i][0][j-1].y)**2) #calculating euclidean distance
                         PathLengths.append(Length) #appending the paths lengths array with the length values
@@ -88,10 +88,10 @@ class GeneticAlgorithm:
         x=iter(SelectedIndividuals) #Creating an object that can be iterated one element at a time using the selected individuals list
         Parents=[list(islice(x, elem)) for elem in splitters] #Slicing the x list into groups of 2 using the slitter list
         for i in range(len(Parents)): #Looping through the parents list
-            NewMember=[-1]*math.ceil(self.NofTowns*self.crossoverRate) #Creating the new member array with a number of blank elements 
-            for j in range(math.ceil(self.NofTowns*self.crossoverRate)): #Looping through the new member list
+            NewMember=[-1]*math.ceil(self.NofFlowers*self.crossoverRate) #Creating the new member array with a number of blank elements 
+            for j in range(math.ceil(self.NofFlowers*self.crossoverRate)): #Looping through the new member list
                 NewMember[j]=Parents[i][0][0][j] #Changing the blanks in the array to the genes in the first parent
-            for k in range(self.NofTowns): #Looping through the whole array
+            for k in range(self.NofFlowers): #Looping through the whole array
                 if Parents[i][1][0][k] not in NewMember: #If the next parents array is not in the new member
                     Child=[] #Creating a blank array to keep the same formatiing as the original members
                     NewMember.append(Parents[i][1][0][k]) #adding the respective gene to the end of the new member
@@ -102,8 +102,8 @@ class GeneticAlgorithm:
     def Mutation(self,NewPopulation,MutationRate): #Creating a function to mutate the new population
         for i in range(len(NewPopulation)): #looping through the members of the population not deemed elite as later in the RunGeneticAlgorithm Function the elite members are at the end of the list
             if MutationRate>=random.uniform(0,1): #if the mutation rate is less greater than a randomly generated number between 0 and 1 continue
-                x=random.randint(0,self.NofTowns-1) #create a random integer between 0 and the length of the population -1 
-                y=random.randint(0,self.NofTowns-1) #create a random integer between 0 and the length of the population -1 
+                x=random.randint(0,self.NofFlowers-1) #create a random integer between 0 and the length of the population -1 
+                y=random.randint(0,self.NofFlowers-1) #create a random integer between 0 and the length of the population -1 
                 #print(np.shape(NewPopulation))
                 NewPopulation[i][0][x],NewPopulation[i][0][y]=NewPopulation[i][0][y],NewPopulation[i][0][x] #swap the x indexed member with the y indexed member in the population
         return NewPopulation #Return new population
@@ -114,7 +114,7 @@ class GeneticAlgorithm:
         Population=[] #creating a blank list called population
         if self.debugMode == True: # if debug more is on, set the random seed to 1 to ensure that the generated towns are the same each time.
             random.seed(1) #setting the random seed as 1
-        for i in range(self.NofTowns): #looping the number of tiems equal to number of towns
+        for i in range(self.NofFlowers): #looping the number of tiems equal to number of towns
             Flowers.append(self.Flower(random.randint(0,self.CartesianMax),random.randint(0,self.CartesianMax))) #using the towns class create towns objects with random x and y values and append them to the towns array
         Flowers[0]=self.Flower(self.BeeStart[0],self.BeeStart[0])
         for i in range(self.PopulationSize): #looping the same amount of times as the population size 
@@ -174,7 +174,7 @@ class GeneticAlgorithm:
         BestMembx=[] #creating a best membx list to store the x values of the towns in the best member of the population in the last generation
         BestMemby=[] #creating a best memby list to store the x values of the towns in the best member of the population in the last generation
         #print(np.shape(BestPopulationSaver))
-        for i in range(self.NofTowns): #looping through the number of towns
+        for i in range(self.NofFlowers): #looping through the number of towns
             BestMembx.append(BestPopulationSaver[0][0][i].x) #adding the x coordinate of the member to the bestmembx list
             BestMemby.append(BestPopulationSaver[0][0][i].y) #adding the y coordinate of the member to the bestmemby list
         
@@ -220,7 +220,7 @@ class GeneticAlgorithm:
         for i in range(len(Samples)): #loop through the samples
             X=[] #x coordinates list
             Y=[] #y coordinates list
-            for j in range(self.NofTowns): #loop through the towns
+            for j in range(self.NofFlowers): #loop through the towns
                 X.append(Samples[i][0][j].x) #append current samples x coordinate to the temp list
                 Y.append(Samples[i][0][j].y) #append current samples y coordinate to the temp list
             
@@ -230,13 +230,15 @@ class GeneticAlgorithm:
                     Y.pop(0) #rearrange list
                     X.append(X[0]) #rearrange list
                     X.pop(0) #rearrange list
+                    
+
             Sample = np.c_[X,Y] #concat list
             Samples1.append(Sample) #append new sample
         return Samples1 #return list of samples
         
 
-BeeStart=[100,100] #starting position of the bee
+# BeeStart=[0,0] #starting position of the bee
 
-Instance=GeneticAlgorithm(BeeStart) #create instance
-Samples = Instance.RunGeneticAlgorithm() #retrieve samples
+# Instance=GeneticAlgorithm(BeeStart) #create instance
+# Samples = Instance.RunGeneticAlgorithm() #retrieve samples
     
