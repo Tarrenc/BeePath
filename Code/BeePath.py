@@ -2,18 +2,16 @@ import random #import random library
 import matplotlib.pyplot as plt #import matplotlib library
 import numpy as np #import numpy library
 from itertools import islice #import itertools library
-import math #import math library
-import statistics #import statistics library
 import time #import time library
 
 
 class GeneticAlgorithm:
     
     def __init__(self, BeeStart):
-        self.Generations=2000 #Number of times that the algorithm will loop
+        self.Generations=1000 #Number of times that the algorithm will loop
         self.NofFlowers=10 #The number of towns that should be visited must be greater than 3
         self.CartesianMax=700 #The maximum cartesian coordinates to be used 
-        self.PopulationSize=20 #Population size 
+        self.PopulationSize=25 #Population size 
         self.ElitismRate=0.05 #Top percentage of the population deemed elite
         self.crossoverRate=0.5
         self.MutationRate=0.05 #The percentage chance of an indivdual mutating
@@ -21,7 +19,7 @@ class GeneticAlgorithm:
         self.convergenceCheck=True #if half the generations have passed and there has been no improvement over a third of the generations terminate the algorithm
         self.NoGenerationalImprovement=200
         self.debugMode=False #keeps the towns the same by setting the same random seed in the population definition function where a random sample of towns is taken
-        self.PostProc=True
+        self.PostProc=True #if you want graphs etc
         self.BeeStart=BeeStart
     
     
@@ -88,8 +86,8 @@ class GeneticAlgorithm:
         x=iter(SelectedIndividuals) #Creating an object that can be iterated one element at a time using the selected individuals list
         Parents=[list(islice(x, elem)) for elem in splitters] #Slicing the x list into groups of 2 using the slitter list
         for i in range(len(Parents)): #Looping through the parents list
-            NewMember=[-1]*math.ceil(self.NofFlowers*self.crossoverRate) #Creating the new member array with a number of blank elements 
-            for j in range(math.ceil(self.NofFlowers*self.crossoverRate)): #Looping through the new member list
+            NewMember=[-1]*int(np.round(self.NofFlowers*self.crossoverRate)) #Creating the new member array with a number of blank elements 
+            for j in range(int(np.round(self.NofFlowers*self.crossoverRate))): #Looping through the new member list
                 NewMember[j]=Parents[i][0][0][j] #Changing the blanks in the array to the genes in the first parent
             for k in range(self.NofFlowers): #Looping through the whole array
                 if Parents[i][1][0][k] not in NewMember: #If the next parents array is not in the new member
@@ -136,7 +134,7 @@ class GeneticAlgorithm:
             Routes=[] #creating a blank list called routes
             Routes.append(self.Paths.Length(self,Population)) #appending the routes array with the Paths method Lengths
             FitList=self.FitnessFunction(Routes) #using the fitness function to get the overall fitness list
-            MeanFitness.append(statistics.mean(FitList))  #calculating the mean fitness at each generation and appending it to the mean fitness list
+            MeanFitness.append(np.mean(FitList))  #calculating the mean fitness at each generation and appending it to the mean fitness list
             BestFitness.append(min(FitList)) #calculating the best fitness at each generation and appending it to the best fitness list
             WorstFitness.append(max(FitList)) #calculating the worst fitness 
             ##Running the algorithm
@@ -181,7 +179,7 @@ class GeneticAlgorithm:
         BestMembx.append(BestMembx[0]) #adding the first element back to the last to end of the list as to complete the loop
         BestMemby.append(BestMemby[0]) #adding the first element back to the last to end of the list as to complete the loop
         
-        SamplesCoordinates=self.Samples(Samples)
+        SamplesCoordinates=self.Samples(Samples) #return sample coordinates
         
         
         if self.PostProc==True:
@@ -197,11 +195,11 @@ class GeneticAlgorithm:
             
             plt.plot(self.BeeStart[0],self.BeeStart[1],marker='o',color='k', mfc='y',markersize=15, label = 'Bee starting position')
             plt.xlim(-self.CartesianMax/5,self.CartesianMax+5) #change the axis limits of the graph
-            plt.ylim(-self.CartesianMax/5,self.CartesianMax+50) #change the axis limits of the graph
+            plt.ylim(-self.CartesianMax/3,self.CartesianMax+50) #change the axis limits of the graph
             plt.xlabel('X Coordinate') #Creating an axis label
             plt.ylabel('Y Coordinate') #Creating an axis label
-            plt.legend()
-            plt.title('Best Route (%0.3f)' %BestFitness[-1]) #creating a plot title
+            plt.legend(loc='lower left')
+            plt.annotate('Shortest Route = %0.3f' %BestFitness[-1],[self.CartesianMax/2,-self.CartesianMax/3+50]) #creating a plot title
             plt.grid('on') #adding a grid to the plot for clarity
             
             
@@ -210,10 +208,10 @@ class GeneticAlgorithm:
             plt.xlabel('Time Elapsed (s)') #Creating an axis label
             plt.ylabel('Minimum Fitness') #Creating an axis label
             plt.legend(loc='best')# setting the legend location
-            plt.title('Graph of Best Fitness over Time') #creating a plot title
+            #plt.title('Graph of Best Fitness over Time') #creating a plot title
             plt.grid('on') #adding a grid to the plot for clarity
         
-        return SamplesCoordinates
+        return SamplesCoordinates #return the sampled routes
         
     def Samples(self, Samples): #function for reordering the sample list
         Samples1=[] #list to store the sample
@@ -235,10 +233,5 @@ class GeneticAlgorithm:
             Sample = np.c_[X,Y] #concat list
             Samples1.append(Sample) #append new sample
         return Samples1 #return list of samples
-        
-
-# BeeStart=[0,0] #starting position of the bee
-
-# Instance=GeneticAlgorithm(BeeStart) #create instance
-# Samples = Instance.RunGeneticAlgorithm() #retrieve samples
+   
     
